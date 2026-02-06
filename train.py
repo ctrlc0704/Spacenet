@@ -3,6 +3,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import argparse
+
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
@@ -11,13 +13,13 @@ from torch.utils.data import DataLoader, TensorDataset
 from model import SpaceNet
 from utils import preprocess_data
 
-def main():
+def main(epochs=20):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # ===== LOAD REAL DATA =====
-    df = pd.read_csv("data.csv")
+    print(f"🚀 Training with {epochs} epochs")
 
-    # Giả sử cột label tên là 'label'
+    # ===== LOAD DATA =====
+    df = pd.read_csv("synthetic_data.csv")  # hoặc data.csv
     y = df["label"].values
     X = df.drop(columns=["label"]).values
 
@@ -68,7 +70,7 @@ def main():
         )
 
         # ----- TRAIN -----
-        for epoch in range(20):
+        for epoch in range(epochs):
             model.train()
             for xb, yb in train_loader:
                 xb, yb = xb.to(device), yb.to(device)
