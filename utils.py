@@ -41,3 +41,24 @@ def preprocess_data(X, y, top_k=25):
     )[::-1][:top_k]
 
     return X[:, idx], y, idx, scaler
+
+
+def explain_with_shap(model, X_background, X_test):
+    """
+    model: trained SpaceNet
+    X_background: small subset (e.g. 100 samples)
+    X_test: samples to explain
+    """
+    model.eval()
+
+    explainer = shap.DeepExplainer(
+        model,
+        torch.tensor(X_background, dtype=torch.float32)
+    )
+
+    shap_values = explainer.shap_values(
+        torch.tensor(X_test, dtype=torch.float32)
+    )
+
+    return shap_values
+
