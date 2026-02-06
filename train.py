@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from model import SpaceNet
 from utils import preprocess_data
 
-def main(epochs=20):
+def main(epochs=50):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print(f"🚀 Training with {epochs} epochs")
