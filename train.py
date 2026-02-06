@@ -134,7 +134,20 @@ def main(epochs=20):
     print("✅ ROC data saved: y_prob.npy & y_true.npy")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Train SpaceNet with configurable epochs"
+    )
+
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=20,
+        help="Number of training epochs (default: 20)"
+    )
+
+    args = parser.parse_args()
+
+    main(epochs=args.epochs)
 
 
 
