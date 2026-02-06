@@ -1,8 +1,8 @@
-# train.py
+import pandas as pd
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
@@ -11,43 +11,63 @@ from torch.utils.data import DataLoader, TensorDataset
 from model import SpaceNet
 from utils import preprocess_data
 
-def train():
+def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # === LOAD DATA (replace with real data) ===
-    X = np.random.randn(1860, 44)
-    y = np.random.randint(0, 4, size=1860)
+    # ===== LOAD REAL DATA =====
+    df = pd.read_csv("data.csv")
 
-    X, y, feat_idx, scaler = preprocess_data(X, y)
+    # Giả sử cột label tên là 'label'
+    y = df["label"].values
+    X = df.drop(columns=["label"]).values
 
+    # ===== PREPROCESSING =====
+    X, y, selected_idx = preprocess_data(
+        X, y, top_k=25
+    )
+
+    print("Selected feature indices:", selected_idx)
+
+    # ===== 5-FOLD CV =====
     skf = StratifiedKFold(
         n_splits=5, shuffle=True, random_state=42
     )
 
-    auc_scores = []
+    aucs = []
 
-    for fold, (train_idx, test_idx) in enumerate(skf.split(X, y)):
+    for fold, (tr, te) in enumerate(skf.split(X, y)):
         print(f"Fold {fold+1}")
 
-        model = SpaceNet(num_features=X.shape[1]).to(device)
+        model = SpaceNet(
+            num_features=X.shape[1],
+            num_classes=4
+        ).to(device)
+
         optimizer = torch.optim.Adam(
-            model.parameters(), lr=1e-3, weight_decay=1e-5
+            model.parameters(),
+            lr=1e-3,
+            weight_decay=1e-5
         )
         criterion = nn.CrossEntropyLoss()
 
-        train_ds = TensorDataset(
-            torch.tensor(X[train_idx], dtype=torch.float32),
-            torch.tensor(y[train_idx], dtype=torch.long)
-        )
-        test_ds = TensorDataset(
-            torch.tensor(X[test_idx], dtype=torch.float32),
-            torch.tensor(y[test_idx], dtype=torch.long)
+        train_loader = DataLoader(
+            TensorDataset(
+                torch.tensor(X[tr], dtype=torch.float32),
+                torch.tensor(y[tr], dtype=torch.long)
+            ),
+            batch_size=64,
+            shuffle=True
         )
 
-        train_loader = DataLoader(train_ds, batch_size=64, shuffle=True)
-        test_loader = DataLoader(test_ds, batch_size=64)
+        test_loader = DataLoader(
+            TensorDataset(
+                torch.tensor(X[te], dtype=torch.float32),
+                torch.tensor(y[te], dtype=torch.long)
+            ),
+            batch_size=64
+        )
 
-        # ---- Training ----
+        # ----- TRAIN -----
         for epoch in range(20):
             model.train()
             for xb, yb in train_loader:
@@ -57,7 +77,7 @@ def train():
                 loss.backward()
                 optimizer.step()
 
-        # ---- Evaluation ----
+        # ----- EVALUATE -----
         model.eval()
         probs, labels = [], []
         with torch.no_grad():
@@ -71,11 +91,16 @@ def train():
             np.concatenate(probs),
             multi_class="ovr"
         )
-        auc_scores.append(auc)
+        aucs.append(auc)
         print(f"AUC: {auc:.4f}")
 
-    print("Mean AUC:", np.mean(auc_scores))
-    print("Std AUC:", np.std(auc_scores))
+    print("Mean AUC:", np.mean(aucs))
+    print("Std AUC:", np.std(aucs))
 
 if __name__ == "__main__":
-    train()
+    main()
+
+
+
+
+
