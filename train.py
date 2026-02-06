@@ -35,7 +35,7 @@ def main(epochs=50):
         n_splits=5, shuffle=True, random_state=42
     )
 
-    aucs = []
+    auc_scores = []
         # ✅ FIX: KHAI BÁO TRƯỚC
     all_probs = []
     all_labels = []
@@ -82,25 +82,6 @@ def main(epochs=50):
                 loss.backward()
                 optimizer.step()
 
-    #     # ----- EVALUATE -----
-    #     model.eval()
-    #     probs, labels = [], []
-    #     with torch.no_grad():
-    #         for xb, yb in test_loader:
-    #             p = F.softmax(model(xb.to(device)), dim=1)
-    #             probs.append(p.cpu().numpy())
-    #             labels.append(yb.numpy())
-
-    #     auc = roc_auc_score(
-    #         np.concatenate(labels),
-    #         np.concatenate(probs),
-    #         multi_class="ovr"
-    #     )
-    #     aucs.append(auc)
-    #     print(f"AUC: {auc:.4f}")
-
-    # print("Mean AUC:", np.mean(aucs))
-    # print("Std AUC:", np.std(aucs))
   # ===== EVALUATE =====
         model.eval()
         probs, labels = [], []
