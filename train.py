@@ -36,6 +36,9 @@ def main(epochs=50):
     )
 
     aucs = []
+        # ✅ FIX: KHAI BÁO TRƯỚC
+    all_probs = []
+    all_labels = []
 
     for fold, (tr, te) in enumerate(skf.split(X, y)):
         print(f"Fold {fold+1}")
