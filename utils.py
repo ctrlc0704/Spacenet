@@ -40,7 +40,7 @@ def preprocess_data(X, y, top_k=25):
         rf.feature_importances_
     )[::-1][:top_k]
 
-    return X[:, idx], y, idx, scaler
+    return X[:, idx], y, idx #, scaler
 
 
 def explain_with_shap(model, X_background, X_test):
