@@ -1,6 +1,7 @@
 # SpaceNet: Explainable Deep Learning for Space Tourism Demand Prediction
 
 This repository contains the implementation of **SpaceNet**, a deep learning framework for modeling and predicting space tourism demand, following the methodology described in research paper reference.
+We re-implement the SpaceNet framework following the methodology described in Pham et al. (2024), using a public synthetic dataset due to data privacy constraints. 
 
 The pipeline integrates:
 - Advanced data preprocessing (outlier removal, normalization, class balancing)
