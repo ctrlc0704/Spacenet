@@ -11,12 +11,14 @@ The pipeline integrates:
 - Robust evaluation with ROC curves and confusion matrices
 
 ---
+## 📌 Pipeline Code
 
-## 📌 Pineline code. 
-!git clone https://github.com/ctrlc0704/Spacenet
-%cd Spacenet
-!ls
-!pip install -r requirements.txt
-!python data_statistics.py
-!python train.py --epochs= 50
-!python plot_results.py
+```bash
+git clone https://github.com/ctrlc0704/Spacenet
+cd Spacenet
+ls
+pip install -r requirements.txt
+python data_statistics.py
+python train.py --epochs 50
+python plot_results.py
+
