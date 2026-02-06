@@ -77,25 +77,59 @@ def main():
                 loss.backward()
                 optimizer.step()
 
-        # ----- EVALUATE -----
+    #     # ----- EVALUATE -----
+    #     model.eval()
+    #     probs, labels = [], []
+    #     with torch.no_grad():
+    #         for xb, yb in test_loader:
+    #             p = F.softmax(model(xb.to(device)), dim=1)
+    #             probs.append(p.cpu().numpy())
+    #             labels.append(yb.numpy())
+
+    #     auc = roc_auc_score(
+    #         np.concatenate(labels),
+    #         np.concatenate(probs),
+    #         multi_class="ovr"
+    #     )
+    #     aucs.append(auc)
+    #     print(f"AUC: {auc:.4f}")
+
+    # print("Mean AUC:", np.mean(aucs))
+    # print("Std AUC:", np.std(aucs))
+  # ===== EVALUATE =====
         model.eval()
         probs, labels = [], []
+
         with torch.no_grad():
             for xb, yb in test_loader:
-                p = F.softmax(model(xb.to(device)), dim=1)
+                p = torch.softmax(model(xb.to(device)), dim=1)
                 probs.append(p.cpu().numpy())
                 labels.append(yb.numpy())
 
-        auc = roc_auc_score(
-            np.concatenate(labels),
-            np.concatenate(probs),
-            multi_class="ovr"
-        )
-        aucs.append(auc)
-        print(f"AUC: {auc:.4f}")
+        y_prob = np.concatenate(probs)
+        y_true = np.concatenate(labels)
 
-    print("Mean AUC:", np.mean(aucs))
-    print("Std AUC:", np.std(aucs))
+        # 👉 LƯU KẾT QUẢ TỪ FOLD NÀY
+        all_probs.append(y_prob)
+        all_labels.append(y_true)
+
+        auc = roc_auc_score(
+            y_true, y_prob, multi_class="ovr"
+        )
+        auc_scores.append(auc)
+        print(f"AUC (Fold {fold + 1}): {auc:.4f}")
+
+    # ===== SAVE FOR ROC PLOTTING =====
+    y_prob_all = np.concatenate(all_probs)
+    y_true_all = np.concatenate(all_labels)
+
+    np.save("y_prob.npy", y_prob_all)
+    np.save("y_true.npy", y_true_all)
+
+    print("\n📊 FINAL RESULTS")
+    print("Mean ROC-AUC:", np.mean(auc_scores))
+    print("Std  ROC-AUC:", np.std(auc_scores))
+    print("✅ ROC data saved: y_prob.npy & y_true.npy")
 
 if __name__ == "__main__":
     main()
